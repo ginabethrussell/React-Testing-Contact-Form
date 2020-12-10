@@ -1,7 +1,10 @@
 import React from 'react';
-import {act, render, rerender, screen} from '@testing-library/react';
+import {render, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ContactForm from './ContactForm';
+import axios from 'axios';
+
+jest.mock('axios');
 
 test("renders Contact Form component without errors", () => {
     render(<ContactForm />);
@@ -62,7 +65,7 @@ test("can add a message to the message field", () => {
     expect(messageInput).toHaveValue('I love Lambda School! Austen Alred is the bomb.');
 });
 
-test("can not enter a form without email", () => {
+test("can not enter a form without email", async () => {
     // Arrange
     render(<ContactForm />);
    
@@ -70,44 +73,75 @@ test("can not enter a form without email", () => {
     const firstNameInput = screen.getByLabelText(/first name/i);
     const LastNameInput = screen.getByLabelText(/last name/i);
     const submitInput = screen.getByRole('button');
-    const preElement = screen.queryByRole('pre');
     
-
     // Act
     userEvent.type(firstNameInput, 'Lambda');
     userEvent.type(LastNameInput, 'Student');
     userEvent.click(submitInput);
     
     // Assert
-    expect(form).not.toContainHTML(preElement);
+    await waitFor(()=> {
+        expect(screen.queryByTestId('pre-element')).toBeNull();
+    });
+   
 });
 
-test("can successfully enter form", () => {
+test("can successfully enter form", async () => {
     // Arrange
     render(<ContactForm />);
    
-    const form = screen.getByTestId('form-element');
     const firstNameInput = screen.getByLabelText(/first name/i);
     const LastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const messageInput = screen.getByLabelText(/message/i);
     const submitInput = screen.getByRole('button');
-    // const preElement = screen.queryByRole('pre');
     
     // Act
+    // type entries into all required fields
     userEvent.type(firstNameInput, 'Lambda');
     userEvent.type(LastNameInput, 'Student');
     userEvent.type(emailInput, 'lambda-student@lambdaschool.com');
-    userEvent.type(messageInput, 'I Love Lambda');
 
-    act(() => {
-        userEvent.click(submitInput);
-    })
-
-    const preElement = screen.queryByRole('pre');
+    // screen.debug();
+    // submit form
+    userEvent.click(submitInput);
+   
     // Assert
-    expect(firstNameInput).toHaveValue('Lambda');
-    expect(preElement).toBeTruthy();
+    await waitFor(()=> {
+        expect(screen.getByTestId('pre-element')).toBeInTheDocument();
+    });
     
+    // screen.debug();
 });
 
+// test('can successfully make api post request and display JSON response', async () => {
+//     // Arrange 
+//     render(<ContactForm />);
+
+//     axios.post.mockResolvedValue(() => {
+//         data: [
+//             {
+//                 'firstName': 'Lambda',
+//                 'lastName': 'Student',
+//                 'email': 'lambda-student@lambdastudents.com',
+//                 'message': 'I love tests',
+//                 'id': '320',
+//                 'createdAt': '2020-12-10T16:46:06.240Z'
+//             }
+//         ]
+//     });
+//     const submitInput = screen.getByRole('button');
+//     userEvent.click(submitInput);
+    
+
+//     const apiPreElement = await screen.getByTestId('api-pre-element');
+//     expect(apiPreElement).toBeTruthy();
+// });
+
+
+//Questions?
+// Do I need to wrap all my actions with act()?
+    // Warning: act(() => {
+      /* fire events that update state */
+    // });
+
+// How do I see the pre tag after mock axios call?

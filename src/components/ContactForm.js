@@ -4,21 +4,22 @@ import axios from 'axios';
 
 const ContactForm = () => {
   const [data, setData] = useState();
+  // const [apiData, setApiData] = useState();
   const { register, errors, handleSubmit } = useForm({
     mode: "onBlur",
   });
   const onSubmit = (data) => {
     setData(data);
   };
-
-  useEffect(() => {
-    console.log(data);
-    if (data !== undefined){
-      axios.post("https://reqres.in/api/users", data)
-      .then(res => console.log(res.data))
-      .catch(err => console.log(err))
-    } 
-  }, [data]);
+  // Stretch goal
+  // useEffect(() => {
+  //   console.log(data);
+  //   if (data !== undefined){
+  //     axios.post("https://reqres.in/api/users", data)
+  //     .then(res => setApiData(res.data))
+  //     .catch(err => console.log(err))
+  //   } 
+  // }, [data]);
 
   return (
     <div className="App">
@@ -85,6 +86,11 @@ const ContactForm = () => {
         )}
         <input type="submit" />
       </form>
+      {/* {apiData && (
+        <pre  data-testid="api-pre-element" style={{ textAlign: "left", color: "white" }}>
+        {JSON.stringify(apiData, null, 2)}
+      </pre>
+      )} */}
     </div>
   );
 };
