@@ -2,9 +2,11 @@ import React from 'react';
 import {render, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ContactForm from './ContactForm';
-import axios from 'axios';
+import getPostData from '../utils/getPostData';
+import {rest} from 'msw';
+import {setupServer} from 'msw/node';
 
-jest.mock('axios');
+
 
 test("renders Contact Form component without errors", () => {
     render(<ContactForm />);
@@ -14,7 +16,6 @@ test("can add name to First Name field", () => {
     // Arrange
     render(<ContactForm />);
    
-    
     // failing, no id match for firstName label, added id in ContactForm.js
     const firstNameInput = screen.getByLabelText(/first name/i);
 
@@ -113,29 +114,45 @@ test("can successfully enter form", async () => {
     // screen.debug();
 });
 
-// test('can successfully make api post request and display JSON response', async () => {
-//     // Arrange 
-//     render(<ContactForm />);
+const server = setupServer(
+    rest.post('https://reqres.in/api/users', (req,res, ctx) => {
+        return res(
+            ctx.status(201), 
+            ctx.json({
+            'firstName': 'Lambda',
+            'lastName': 'Student',
+            'email': 'lambda-student@lambdastudents.com',
+            'message': 'I love tests',
+            'id': '320',
+            'createdAt': '2020-12-10T16:46:06.240Z'
+        }))
+    })
+);
+beforeAll(() => server.listen());
+afterAll(() =>server.close());
+afterEach(() => server.resetHandlers());
 
-//     axios.post.mockResolvedValue(() => {
-//         data: [
-//             {
-//                 'firstName': 'Lambda',
-//                 'lastName': 'Student',
-//                 'email': 'lambda-student@lambdastudents.com',
-//                 'message': 'I love tests',
-//                 'id': '320',
-//                 'createdAt': '2020-12-10T16:46:06.240Z'
-//             }
-//         ]
-//     });
-//     const submitInput = screen.getByRole('button');
-//     userEvent.click(submitInput);
-    
+test('can successfully make api post request and display JSON response', async () => {
+    // Arrange 
+    const data = {
+        'firstName': 'Lambda',
+        'lastName': 'Student',
+        'email': 'lambda-student@lambdastudents.com',
+        'message': 'I love tests'
+    };
+    // Act
 
-//     const apiPreElement = await screen.getByTestId('api-pre-element');
-//     expect(apiPreElement).toBeTruthy();
-// });
+    const returnedData = await getPostData(data);
+    expect(returnedData).toEqual({
+        'firstName': 'Lambda',
+        'lastName': 'Student',
+        'email': 'lambda-student@lambdastudents.com',
+        'message': 'I love tests',
+        'id': '320',
+        'createdAt': '2020-12-10T16:46:06.240Z'
+    })
+
+});
 
 
 //Questions?
@@ -143,5 +160,3 @@ test("can successfully enter form", async () => {
     // Warning: act(() => {
       /* fire events that update state */
     // });
-
-// How do I see the pre tag after mock axios call?
