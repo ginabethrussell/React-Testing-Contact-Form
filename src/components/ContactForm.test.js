@@ -6,6 +6,9 @@ import getPostData from '../utils/getPostData';
 import {rest} from 'msw';
 import {setupServer} from 'msw/node';
 
+beforeEach(() => {
+    jest.resetModules();
+})
 test("renders Contact Form component without errors", () => {
     render(<ContactForm />);
 })
@@ -64,7 +67,7 @@ test("can add a message to the message field", () => {
     expect(messageInput).toHaveValue('I love Lambda School! Austen Alred is the bomb.');
 });
 
-test("can not enter a form without email", async () => {
+test("can not enter a form without email", () => {
     // Arrange
     render(<ContactForm />);
    
@@ -79,7 +82,7 @@ test("can not enter a form without email", async () => {
     userEvent.click(submitInput);
     
     // Assert
-    await waitFor(()=> {
+    waitFor(()=> {
         expect(screen.queryByTestId('pre-element')).toBeNull();
     });
    
@@ -87,7 +90,9 @@ test("can not enter a form without email", async () => {
 
 test("can successfully enter form", async () => {
     // Arrange
+    // screen.debug()
     render(<ContactForm />);
+    // screen.debug()
    
     const firstNameInput = screen.getByLabelText(/first name/i);
     const LastNameInput = screen.getByLabelText(/last name/i);
@@ -105,7 +110,7 @@ test("can successfully enter form", async () => {
     userEvent.click(submitInput);
    
     // Assert
-    await waitFor(()=> {
+    waitFor(()=> {
         expect(screen.getByTestId('pre-element')).toBeInTheDocument();
     });
     
