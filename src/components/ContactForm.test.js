@@ -6,8 +6,6 @@ import getPostData from '../utils/getPostData';
 import {rest} from 'msw';
 import {setupServer} from 'msw/node';
 
-
-
 test("renders Contact Form component without errors", () => {
     render(<ContactForm />);
 })
@@ -154,9 +152,3 @@ test('can successfully make api post request and display JSON response', async (
 
 });
 
-
-//Questions?
-// Do I need to wrap all my actions with act()?
-    // Warning: act(() => {
-      /* fire events that update state */
-    // });
